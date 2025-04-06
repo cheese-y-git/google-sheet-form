@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Data Entry Form</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+    }
+
+    label {
+      font-weight: bold;
+      margin-top: 15px;
+      display: block;
+    }
+
+    input, select, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      font-size: 1em;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 20px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .success {
+      color: green;
+      margin-top: 10px;
+    }
+
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Submit Entry</h2>
+  <form id="entryForm">
+    <label for="name">Your Name (optional)</label>
+    <input type="text" id="name" name="name" placeholder="Enter your name">
+
+    <label for="unitNumber">Unit Number</label>
+    <input type="number" id="unitNumber" name="unitNumber" required>
+
+    <label for="interestLevel">Interest Level</label>
+    <select id="interestLevel" name="interestLevel" required>
+      <option value="High">High</option>
+      <option value="Medium">Medium</option>
+      <option value="Low">Low</option>
+      <option value="No response">No response</option>
+    </select>
+
+    <label for="followUp">Follow-Up?</label>
+    <select id="followUp" name="followUp" required>
+      <option value="Yes">Yes</option>
+      <option value="No">No</option>
+    </select>
+
+    <label for="description">Description</label>
+    <textarea id="description" name="description" rows="4" placeholder="Type any notes..."></textarea>
+
+    <button type="submit">Submit</button>
+    <p id="status" class=""></p>
+  </form>
+
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbzZsZ0EqbCiPVRp8cM-M4nvGyBuhew6C34mTQ294J_yQ_jbaPU-w4VF9MREZrhlJk7blw/exec"; // <-- paste your URL here
+
+    document.getElementById("entryForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const statusEl = document.getElementById("status");
+      statusEl.textContent = "Submitting...";
+      statusEl.className = "";
+
+      const formData = {
+        name: document.getElementById("name").value.trim(),
+        unitNumber: document.getElementById("unitNumber").value,
+        interestLevel: document.getElementById("interestLevel").value,
+        followUp: document.getElementById("followUp").value,
+        description: document.getElementById("description").value.trim()
+      };
+
+      try {
+        const response = await fetch(scriptURL, {
+          method: "POST",
+          body: JSON.stringify(formData),
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+
+        if (response.ok) {
+          statusEl.textContent = "Submitted successfully!";
+          statusEl.className = "success";
+          document.getElementById("entryForm").reset();
+        } else {
+          throw new Error("Submission failed.");
+        }
+      } catch (error) {
+        statusEl.textContent = "Error submitting. Try again.";
+        statusEl.className = "error";
+      }
+    });
+  </script>
+</body>
+</html>
