@@ -48,41 +48,82 @@
       color: red;
       margin-top: 10px;
     }
+
+    .name-input {
+      display: block;
+      margin-top: 30px;
+    }
+
+    .form-container {
+      display: none;
+    }
+
+    .form-container.show {
+      display: block;
+    }
   </style>
 </head>
 <body>
   <h2>Submit Entry</h2>
-  <form id="entryForm">
+
+  <!-- Name Input Section -->
+  <div id="nameSection" class="name-input">
     <label for="name">Your Name (optional)</label>
     <input type="text" id="name" name="name" placeholder="Enter your name">
+    <button onclick="storeName()">Submit Name</button>
+  </div>
 
-    <label for="unitNumber">Unit Number</label>
-    <input type="number" id="unitNumber" name="unitNumber" required>
+  <!-- Main Form -->
+  <div id="formSection" class="form-container">
+    <form id="entryForm">
+      <label for="unitNumber">Unit Number (XX-XXX)</label>
+      <input type="text" id="unitNumber" name="unitNumber" required pattern="^\d{2}-\d{3}$" title="Unit number should be in the format XX-XXX (e.g., 01-123)">
 
-    <label for="interestLevel">Interest Level</label>
-    <select id="interestLevel" name="interestLevel" required>
-      <option value="High">High</option>
-      <option value="Medium">Medium</option>
-      <option value="Low">Low</option>
-      <option value="No response">No response</option>
-    </select>
+      <label for="interestLevel">Interest Level</label>
+      <select id="interestLevel" name="interestLevel" required>
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+        <option value="No response" selected>No response</option> <!-- Default to "No response" -->
+      </select>
 
-    <label for="followUp">Follow-Up?</label>
-    <select id="followUp" name="followUp" required>
-      <option value="Yes">Yes</option>
-      <option value="No">No</option>
-    </select>
+      <label for="followUp">Follow-Up?</label>
+      <select id="followUp" name="followUp" required>
+        <option value="Yes">Yes</option>
+        <option value="No" selected>No</option> <!-- Default to "No" -->
+      </select>
 
-    <label for="description">Description</label>
-    <textarea id="description" name="description" rows="4" placeholder="Type any notes..."></textarea>
+      <label for="description">Description</label>
+      <textarea id="description" name="description" rows="4" placeholder="Type any notes..."></textarea>
 
-    <button type="submit">Submit</button>
-    <p id="status" class=""></p>
-  </form>
+      <button type="submit">Submit</button>
+      <p id="status" class=""></p>
+    </form>
+  </div>
 
   <script>
     const scriptURL = "https://script.google.com/macros/s/AKfycbzZsZ0EqbCiPVRp8cM-M4nvGyBuhew6C34mTQ294J_yQ_jbaPU-w4VF9MREZrhlJk7blw/exec"; // <-- paste your URL here
 
+    // Check if a name is stored in localStorage
+    if (localStorage.getItem("userName")) {
+      // Show the main form and hide the name input
+      document.getElementById("nameSection").style.display = "none";
+      document.getElementById("formSection").classList.add("show");
+    }
+
+    // Store the name in localStorage
+    function storeName() {
+      const name = document.getElementById("name").value.trim();
+      if (name) {
+        localStorage.setItem("userName", name);
+        document.getElementById("nameSection").style.display = "none";
+        document.getElementById("formSection").classList.add("show");
+      } else {
+        alert("Please enter a name!");
+      }
+    }
+
+    // Add event listener to handle form submission
     document.getElementById("entryForm").addEventListener("submit", async function(e) {
       e.preventDefault();
 
@@ -90,8 +131,10 @@
       statusEl.textContent = "Submitting...";
       statusEl.className = "";
 
+      // Retrieve the user's name from localStorage
+      const userName = localStorage.getItem("userName");
       const formData = {
-        name: document.getElementById("name").value.trim(),
+        name: userName,
         unitNumber: document.getElementById("unitNumber").value,
         interestLevel: document.getElementById("interestLevel").value,
         followUp: document.getElementById("followUp").value,
